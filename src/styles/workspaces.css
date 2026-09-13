@@ -858,6 +858,14 @@
   padding: 16px;
 }
 
+/* Structured views share the editor pane with optional collection and
+   inspector panes. Keep every view inside that measured content box so a
+   child cannot silently expand behind a neighbouring pane. */
+.qn-structured-content > * {
+  min-width: 0;
+  max-width: 100%;
+}
+
 .qn-structured-section {
   width: 100%;
   margin-inline: 0;
@@ -1459,9 +1467,11 @@
 
 .qn-project-board {
   display: grid;
+  width: 100%;
+  max-width: 100%;
   grid-template-columns: repeat(4, minmax(16rem, 1fr));
   gap: 12px;
-  min-width: 68rem;
+  min-width: 0;
   overflow-x: auto;
   padding-bottom: 4px;
   overscroll-behavior-inline: contain;
@@ -1703,7 +1713,10 @@
   border-bottom: 1px solid var(--qn-border-subtle);
 }
 
-@container (max-width: 52rem) {
+/* Four 16rem columns, three gaps, and the workspace content padding require
+   about 69rem of actual editor width. This container query intentionally
+   reacts to the inspector and collection panes, not the browser viewport. */
+@container (max-width: 69rem) {
   .qn-project-board {
     grid-template-columns: repeat(2, minmax(14rem, 1fr));
     min-width: 0;

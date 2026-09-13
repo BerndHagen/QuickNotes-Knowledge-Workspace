@@ -25,6 +25,38 @@ const dragMouse = async (page, source, target) => {
 
 const projectColumn = (board, id) => board.locator(`.qn-project-column[data-column="${id}"]`)
 
+const projectBoardLayout = (board) => board.evaluate((element) => {
+  const boardBox = element.getBoundingClientRect()
+  const columns = [...element.querySelectorAll('.qn-project-column')]
+    .map((column) => column.getBoundingClientRect())
+  return {
+    trackCount: getComputedStyle(element).gridTemplateColumns.split(' ').length,
+    rowCount: new Set(columns.map((column) => Math.round(column.top))).size,
+    boardRight: Math.round(boardBox.right),
+    furthestColumnRight: Math.round(Math.max(...columns.map((column) => column.right))),
+    overflow: element.scrollWidth - element.clientWidth,
+  }
+})
+
+test('fits project columns to the editor width while the inspector is docked', async ({ page }) => {
+  await page.setViewportSize({ width: 1920, height: 1080 })
+  await signIn(page)
+  await createProject(page, `Inspector layout ${Date.now()}`)
+
+  const board = page.locator('.qn-project-board')
+  await expect(board.locator('.qn-project-column')).toHaveCount(4)
+  await expect.poll(async () => (await projectBoardLayout(board)).trackCount).toBe(4)
+
+  await page.getByRole('button', { name: 'Show inspector' }).click()
+  await expect(page.getByRole('complementary', { name: 'Inspector' })).toBeVisible()
+  await expect.poll(async () => (await projectBoardLayout(board)).trackCount).toBe(2)
+
+  const layout = await projectBoardLayout(board)
+  expect(layout.rowCount).toBe(2)
+  expect(layout.overflow).toBeLessThanOrEqual(1)
+  expect(layout.furthestColumnRight).toBeLessThanOrEqual(layout.boardRight + 1)
+})
+
 test('moves project tasks by real mouse and held-touch drag, then persists the result', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 })
   await signIn(page)
