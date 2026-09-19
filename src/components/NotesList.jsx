@@ -464,10 +464,9 @@ export default function NotesList({ sidebarToggle, onOpenNote }) {
       <div className="qn-note-list-header shrink-0 px-3 pb-2.5 pt-3">
         <div className="mb-2.5 flex items-center gap-1.5">
           {sidebarToggle}
-          <h2 className="min-w-0 flex-1 truncate text-title-sm font-semibold text-content">{title}</h2>
-          <span className="shrink-0 rounded-full bg-surface-sunken px-2 py-0.5 text-ui-xs font-medium tabular-nums text-content-muted">
-            {visibleNotes.length}
-          </span>
+          <h2 className="min-w-0 flex-1 truncate text-title-sm font-semibold text-content">
+            {title} ({visibleNotes.length})
+          </h2>
           <SortDropdown
             currentSort={activeSort}
             onSortChange={(sort) => {
